@@ -1,0 +1,14 @@
+{
+  "name": "sergerad",
+  "description": "sergerad's agent skills for Claude Code.",
+  "owner": {
+    "name": "sergerad"
+  },
+  "plugins": [
+    {
+      "name": "sergerad-skills",
+      "description": "Personal agent skills: PR review comments and more.",
+      "source": "./"
+    }
+  ]
+}

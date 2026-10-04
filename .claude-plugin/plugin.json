@@ -1,0 +1,11 @@
+{
+  "name": "sergerad-skills",
+  "description": "Personal agent skills: PR review comments and more.",
+  "version": "0.1.0",
+  "author": {
+    "name": "sergerad"
+  },
+  "homepage": "https://github.com/sergerad/skills",
+  "repository": "https://github.com/sergerad/skills",
+  "license": "Apache-2.0"
+}
