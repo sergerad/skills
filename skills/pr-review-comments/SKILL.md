@@ -5,7 +5,7 @@ description: Review a GitHub pull request and output ordered, paste-ready review
 
 # PR review comments
 
-Produce one **coherent** review of a GitHub PR: an ordered series of paste-ready comments that read as a single patch series, where each comment assumes the ones before it were applied.
+Produce one **coherent** review of a GitHub PR: an ordered set of paste-ready comments, each self-contained, with cascading changes merged into the one comment where they start.
 
 The argument is a PR URL or number.
 
@@ -28,11 +28,12 @@ Done when each finding has a named piece of evidence behind it.
 
 ## 3. Arrange into one coherent series
 
-- **Order:** bugs first, then by importance, nits last. A comment that others build on moves ahead of them.
-- **Build forward:** a later comment's prose and snippet use the types, names and signatures that earlier comments introduced, and say so ("with the `KmsKeyArn` from comment 2").
-- **Resolve overlap:** when two findings touch the same code, either merge them into one comment or make the later one start from the earlier one's result. When one finding deletes code another edits, the deletion goes first and the edit is retargeted at what remains.
+- **Merge cascades:** findings that touch the same code, or where one change forces or reshapes another, become a single comment. A removed flag, the config struct it simplifies, the call site that follows and the tests that change with it are one comment with one combined snippet set showing the end state.
+- **Anchor a merged comment** at the first, most relevant line: where the root cause sits. The other locations it touches are linked from its body.
+- **Keep independent findings separate:** two comments stay apart only when either could be applied without the other.
+- **Order:** bugs first, then by importance, nits last.
 
-Done when the snippets, applied in order as a patch series, each apply to the result of the previous ones, and the last one leaves the code in the state the whole review recommends.
+Done when no two comments edit the same code, no comment's snippet depends on another comment being applied, and every finding from step 2 lives in exactly one comment.
 
 ## 4. Write each comment
 
@@ -40,9 +41,9 @@ Number the comments. Each one is:
 
 1. An **anchor line** outside the block: the file path and the line or line range to attach the comment to in "Files changed". The anchor is a line the PR adds or changes.
 2. The **comment body** in a four-backtick `markdown` fence, so it copies as raw markdown:
-   - A short paragraph stating the problem and its consequence, with every code reference as an inline link labelled by its lines: `[L28–L36](https://github.com/<owner>/<repo>/blob/<head-sha>/<path>#L28-L36)`. Links to another file name it: `[tests.rs L93–L106](…)`.
-   - A `**Fix:**` sentence saying what to change.
-   - A **change snippet**: the replacement code in a fenced block (`rust`, `toml`), or a `diff` block when the change is mostly deletion.
+   - A short paragraph stating the problem and its consequence. The comment sits on its anchor, so the body refers to the anchored code in words ("this flag", "the call here") and links only the *other* locations it mentions, each labelled by its lines: `[L28–L36](https://github.com/<owner>/<repo>/blob/<head-sha>/<path>#L28-L36)`. A link into a different file than the anchor names that file: `[tests.rs L93–L106](…)`.
+   - A `**Fix:**` sentence saying what to change, across every location the comment covers.
+   - **Change snippets**: the replacement code in fenced blocks (`rust`, `toml`), or a `diff` block when the change is mostly deletion. A merged comment has one snippet per location, each opening with a `// <file or item>` line, and together they show the final state.
 
 Template:
 
@@ -50,11 +51,17 @@ Template:
 **3. `path/to/file.rs` — lines 102–111**
 
 ````markdown
-<Problem and consequence, with [L102–L111](https://github.com/<owner>/<repo>/blob/<head-sha>/path/to/file.rs#L102-L111) links.>
+<Problem and consequence of the anchored code, in words. Other places it reaches: [L161–L167](https://github.com/<owner>/<repo>/blob/<head-sha>/path/to/file.rs#L161-L167), [main.rs L65–L69](https://github.com/<owner>/<repo>/blob/<head-sha>/path/to/main.rs#L65-L69).>
 
-**Fix:** <what to change, referring to earlier comments where it builds on them.>
+**Fix:** <what to change, here and at the linked locations.>
 
 ```rust
+// file.rs
+<replacement code>
+```
+
+```rust
+// main.rs
 <replacement code>
 ```
 ````
@@ -63,6 +70,7 @@ Template:
 Before finishing each comment, check:
 
 - Every line number against the file at the head SHA.
+- The body has no link to its own anchor range.
 - Every API a snippet calls exists at the locked dependency version.
 - The snippet matches the surrounding code's naming, error style and comment style.
 
