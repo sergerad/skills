@@ -6,7 +6,7 @@ Agent skills for [Claude Code](https://claude.com/claude-code), packaged as a pl
 
 | Skill | What it does |
 | --- | --- |
-| [`pr-review-comments`](skills/pr-review-comments/SKILL.md) | Reviews a GitHub PR and outputs an ordered series of paste-ready review comments, each with its file/line anchor, links to the source lines and a change snippet. Requires the [`gh` CLI](https://cli.github.com). |
+| [`pr-review-comments`](skills/pr-review-comments/SKILL.md) | Reviews a GitHub PR and outputs an ordered series of paste-ready review comments, each with its file/line anchor, links to the source lines and a change snippet that was applied and tested in a checkout of the PR. Requires the [`gh` CLI](https://cli.github.com). |
 
 ## Install
 
