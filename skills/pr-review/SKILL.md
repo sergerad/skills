@@ -14,9 +14,9 @@ The argument is a PR URL or number.
 The changes reach the author in one of two ways:
 
 - **Review comments**: paste-ready comments shown in the conversation. Read [`DELIVER-COMMENTS.md`](DELIVER-COMMENTS.md).
-- **Stack of PRs**: one PR per change on top of the reviewed PR, linked as a GitHub stack, plus one summary comment. The user signs off the planned PRs before step 4. Read [`DELIVER-STACK.md`](DELIVER-STACK.md).
+- **Stack of PRs**: one PR per change on top of the reviewed PR, linked as a GitHub stack, plus one summary comment. When one PR holds all the changes, it is a single PR and no stack is made. The user signs off the planned PRs before step 4. Read [`DELIVER-STACK.md`](DELIVER-STACK.md).
 
-The user's request decides which. "Comments", "review comments" or "what should I comment" means comments; "a stack", "PRs" or "open PRs for the fixes" means the stack. When the request names neither, as in a bare "review this PR", ask once, as soon as step 3 is done: list the arranged changes by title in a line each, then ask which delivery they want. Reading and finding (steps 1 to 3) never wait on the answer.
+The user's request decides which. "Comments", "review comments" or "what should I comment" means comments; "a stack", "PRs" or "open PRs for the fixes" means the stack. When the request names neither, as in a bare "review this PR", ask once, as soon as step 3 is done: list the arranged changes by title in a line each, then ask which delivery they want, calling the second option "a PR" when there is only one change. Reading and finding (steps 1 to 3) never wait on the answer.
 
 Read the chosen delivery file before any code is written, and follow it from there.
 

@@ -1,7 +1,7 @@
 {
   "name": "sergerad-skills",
   "description": "Personal agent skills: PR review and more.",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "author": {
     "name": "sergerad"
   },

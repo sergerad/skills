@@ -7,6 +7,7 @@ One of the two deliveries of [`pr-review`](SKILL.md): each change becomes a PR s
 - One PR per substantive change, in review order, the most important at the bottom so the author can take it without the rest.
 - All nits go together in one last PR at the top.
 - A finding that is a question, or whose change could not be tested, gets no PR; it goes in the summary comment.
+- **One PR is not a stack.** When the review's changes fit in a single PR, deliver that one PR on the reviewed PR's head branch and skip everything stack-specific: no `gh stack` check, no linking. The two sign-offs still apply. Post the summary comment only when there are questions or notes for the author beyond the PR; the PR's own "follow-up to #<n>" line already links it from the reviewed PR.
 
 ## 2. Get the plan signed off
 
@@ -42,7 +43,7 @@ For each PR:
   - *Testing*: the gate commands run and their results, and any evidence gathered (a reproduced failure, a new test).
   - *Stack*: "Stacked on #<n>" for the first, "Stacked on <previous PR>" for the rest, and what the author must confirm, if anything.
 
-For the reviewed PR, one **summary comment**, short enough to read in a glance:
+For the reviewed PR, one **summary comment**, short enough to read in a glance (with a single PR, only when there are questions or notes to carry):
 
 ```markdown
 Review of <short head SHA>: <verdict in one sentence>. Proposed changes, stacked on this PR in order:
@@ -61,6 +62,8 @@ Show the user the finished stack: the branches in order with their diffstats, ea
 ## 6. Publish as a GitHub stack
 
 The PRs are linked into a real GitHub stack with the `gh stack` extension, so GitHub shows them as one stack and can rebase and merge them in order. Chained base branches alone are not a stack.
+
+With a single PR, do only steps 2, 3, 5 (when a comment is due) and 6.
 
 1. Check the extension is there: `gh extension list` shows `github/gh-stack`. If it is missing, stop and ask the user to run `gh extension install github/gh-stack`.
 2. Push the branches to the repository that holds the reviewed PR's head branch (a PR's base must live there). Without push access, stop and say so.
