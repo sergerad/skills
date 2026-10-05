@@ -11,7 +11,7 @@ One of the two deliveries of [`pr-review`](SKILL.md): each change becomes a PR s
 
 ## 2. Get the plan signed off
 
-Before applying anything (step 4 of `SKILL.md`), show the user the planned stack and stop. For each planned PR, in order:
+Before applying anything (step 5 of `SKILL.md`), show the user the planned stack and stop. For each planned PR, in order:
 
 - its working title;
 - the problem, in a sentence or two, with links to the lines at the reviewed head SHA;
@@ -24,7 +24,7 @@ Take the user's answer as the plan: drop, merge, reorder or reshape PRs as they 
 
 ## 3. Build it locally
 
-Once step 4 of `SKILL.md` has applied and tested the signed-off changes, each one is a commit in the review worktree, each on top of the last. Give every commit its branch:
+Once step 5 of `SKILL.md` has applied and tested the signed-off changes, each one is a commit in the review worktree, each on top of the last. Give every commit its branch:
 
 ```sh
 git branch review/pr-<n>/<nn>-<slug> <commit>
