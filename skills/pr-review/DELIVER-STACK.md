@@ -58,13 +58,19 @@ Questions:
 
 Show the user the finished stack: the branches in order with their diffstats, each PR's title and description, and the summary comment. Then stop. Publishing happens only after the user approves this in the conversation; the plan sign-off, or any earlier or general go-ahead, does not cover it.
 
-## 6. Publish
+## 6. Publish as a GitHub stack
 
-1. Push the branches to the repository that holds the reviewed PR's head branch (a PR's base must live there). Without push access, stop and say so.
-2. Open the PRs bottom-up: the first with `gh pr create --base <reviewed PR's head branch> --head <branch 1>`, each later one with `--base <previous branch>`.
-3. Fill the real PR numbers into the summary comment and post it with `gh pr comment <n>`.
-4. Report the PR URLs and the comment URL, then give the wrap-up from `SKILL.md`.
+The PRs are linked into a real GitHub stack with the `gh stack` extension, so GitHub shows them as one stack and can rebase and merge them in order. Chained base branches alone are not a stack.
 
-Tell the user the stack goes stale when the reviewed PR gets new commits: it then needs a rebase, bottom-up.
+1. Check the extension is there: `gh extension list` shows `github/gh-stack`. If it is missing, stop and ask the user to run `gh extension install github/gh-stack`.
+2. Push the branches to the repository that holds the reviewed PR's head branch (a PR's base must live there). Without push access, stop and say so.
+3. Open the PRs bottom-up with the signed-off titles and descriptions: the first with `gh pr create --base <reviewed PR's head branch> --head <branch 1> --title … --body-file …`, each later one with `--base <previous branch>`. (`gh stack submit --auto` would open them as drafts with generated titles, so the PRs are created directly.)
+4. Link them, bottom to top: `gh stack link --base <reviewed PR's head branch> <pr 1> <pr 2> …`. It prints the stack number.
+5. Fill the real PR numbers into the summary comment and post it with `gh pr comment <n>`.
+6. Report the stack number, the PR URLs and the comment URL, then give the wrap-up from `SKILL.md`.
+
+A GitHub stack is a single line of PRs. The review stack is its own stack whose bottom targets the reviewed PR's branch; it does not join a stack the reviewed PR already belongs to.
+
+Tell the user the stack goes stale when the reviewed PR gets new commits: it then needs `gh stack rebase` and `gh stack push`, or a manual rebase bottom-up.
 
 Remove the review worktree once the PRs are open; the branches keep the commits.
