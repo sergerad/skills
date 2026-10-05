@@ -1,6 +1,6 @@
-# Delivering as a stack of PRs
+# Delivering as PRs
 
-One of the two deliveries of [`pr-review`](SKILL.md): each change becomes a PR stacked on the reviewed PR, and one short comment on the reviewed PR indexes the stack. This pushes branches and posts on someone else's work, so the user signs off twice: on the **plan**, before any code is written, and on the **finished stack**, before anything is published.
+One of the two deliveries of [`pr-review`](SKILL.md): each change becomes a PR stacked on the reviewed PR, and one short comment on the reviewed PR indexes the stack. A review with one change is a single PR and no stack. This pushes branches and posts on someone else's work, so the user signs off twice: on the **plan**, before any code is written, and on the **finished stack**, before anything is published.
 
 ## 1. Shape the stack
 
@@ -16,7 +16,7 @@ Before applying anything (step 4 of `SKILL.md`), show the user the planned stack
 - its working title;
 - the problem, in a sentence or two, with links to the lines at the reviewed head SHA;
 - the intended change: which files it touches and the approach, in plain words, without code;
-- what it depends on or might disturb, such as another open PR on the same base.
+- what it depends on or might disturb: the open PRs based on the reviewed PR's head branch, found in step 1 of `SKILL.md`.
 
 Then list the findings that get no PR and why.
 
@@ -30,18 +30,18 @@ Once step 4 of `SKILL.md` has applied and tested the signed-off changes, each on
 git branch review/pr-<n>/<nn>-<slug> <commit>
 ```
 
-Commit messages follow the repo's rules for format, signing and attribution (`CLAUDE.md`, the user's memory). Reword with `git commit --amend` or an autosquash rebase before branching if they do not.
+Commit messages, like the PR texts below, follow the repo's and the user's rules for format, signing and attribution (`CLAUDE.md`, the user's memory). Reword with `git commit --amend` or an autosquash rebase before branching if they do not.
 
 ## 4. Draft the text
 
 For each PR:
 
 - **Title:** the change in the repo's commit style.
-- **Description:**
-  - *Problem*: what is wrong and its consequence, linking the lines at the reviewed head SHA (`https://github.com/<owner>/<repo>/blob/<head-sha>/<path>#L28-L36`).
-  - *Change*: what the PR does, including the call sites and tests it carries.
+- **Description**, under the headings the repo's or the user's PR convention gives, or these when there is none:
+  - *Context*: what is wrong and its consequence, linking the lines at the reviewed head SHA (`https://github.com/<owner>/<repo>/blob/<head-sha>/<path>#L28-L36`) and the review comment it follows up, if any.
+  - *Changes*: what the PR does, including the call sites and tests it carries.
   - *Testing*: the gate commands run and their results, and any evidence gathered (a reproduced failure, a new test).
-  - *Stack*: "Stacked on #<n>" for the first, "Stacked on <previous PR>" for the rest, and what the author must confirm, if anything.
+  - A closing line: "Stacked on #<n>" for the first, "Stacked on <previous PR>" for the rest ("Follow-up to #<n>" for a single PR), what the author must confirm, and which open PRs it will conflict with.
 
 For the reviewed PR, one **summary comment**, short enough to read in a glance (with a single PR, only when there are questions or notes to carry):
 
@@ -51,9 +51,11 @@ Review of <short head SHA>: <verdict in one sentence>. Proposed changes, stacked
 1. #<pr> **<title>** — <one sentence>. ([file L24](<link>))
 2. #<pr> **<title>** — <one sentence>. ([file L339](<link>))
 
-Questions:
-- <question the author must answer>
+Questions and notes:
+- <question the author must answer, or a finding that got no PR>
 ```
+
+Every link in these texts is one you fetched: a line link checked against the head SHA, a comment URL from the thread list, a PR number from `gh`. A link you cannot look up is left out and the thing is named in words.
 
 ## 5. Get the stack signed off
 
@@ -66,7 +68,7 @@ The PRs are linked into a real GitHub stack with the `gh stack` extension, so Gi
 With a single PR, do only steps 2, 3, 5 (when a comment is due) and 6.
 
 1. Check the extension is there: `gh extension list` shows `github/gh-stack`. If it is missing, stop and ask the user to run `gh extension install github/gh-stack`.
-2. Push the branches to the repository that holds the reviewed PR's head branch (a PR's base must live there). Without push access, stop and say so.
+2. Confirm the reviewed PR's head is still the SHA you reviewed; if it moved, stop and tell the user. Then push the branches to the repository that holds the reviewed PR's head branch (a PR's base must live there). Without push access, stop and say so.
 3. Open the PRs bottom-up with the signed-off titles and descriptions: the first with `gh pr create --base <reviewed PR's head branch> --head <branch 1> --title … --body-file …`, each later one with `--base <previous branch>`. (`gh stack submit --auto` would open them as drafts with generated titles, so the PRs are created directly.)
 4. Link them, bottom to top: `gh stack link --base <reviewed PR's head branch> <pr 1> <pr 2> …`. It prints the stack number.
 5. Fill the real PR numbers into the summary comment and post it with `gh pr comment <n>`.

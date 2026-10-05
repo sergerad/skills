@@ -1,6 +1,6 @@
 ---
 name: pr-review
-description: Review a GitHub pull request by finding issues and applying and testing each fix in a checkout, then deliver the fixes as paste-ready review comments or as a stack of PRs on the reviewed one. Use when the user asks to review a PR, or gives a GitHub pull request URL or number to review.
+description: Review a GitHub pull request by finding issues and applying and testing each fix in a checkout, then deliver the fixes as paste-ready review comments or as PRs stacked on the reviewed one. Use when the user asks to review a PR, or gives a GitHub pull request URL or number to review.
 ---
 
 # PR review
@@ -27,14 +27,18 @@ Read the chosen delivery file before any code is written, and follow it from the
 - Check the head out as a detached worktree in the scratchpad: `git worktree add --detach <scratch>/pr-<n> FETCH_HEAD`. This **review worktree** is where every proposed change gets applied; the user's own checkout stays untouched.
 - Read every changed source file in full at the head SHA with line numbers (`git show <sha>:<path> | cat -n`). Lockfiles: skim only what the manifests changed.
 - Read the repo's `CLAUDE.md` and any memory on review conventions; they are review criteria.
+- Read the PR's review threads with their resolved state (GraphQL `reviewThreads { isResolved … }`) and its comments. A resolved thread is a claim to check at the head: was it actually addressed, and fully? A point the author declined with a reason is settled; raise it again only with new evidence. Keep each comment's URL for later links.
+- List the open PRs based on this PR's head branch. They are what a proposed change will conflict with.
 
-Done when every changed non-lockfile file has been read at the head SHA and the review worktree exists.
+Done when every changed non-lockfile file has been read at the head SHA, the threads are read, and the review worktree exists.
 
 ## 2. Find and verify
 
 Look for correctness and security bugs first, then operability (timeouts, retries, error messages an operator will read, logging), simplification (redundant calls, unreachable code, speculative generality), and departures from the repo's conventions.
 
-Every suspicion is checked against a source before it becomes a finding: the code path itself, the dependency's source at the locked version (`~/.cargo/registry/src/`), `cargo tree`, the base branch's lockfile. A suspicion that fails its check is dropped silently. Keep track of what was checked by reading and what was run.
+Every suspicion is checked against a source before it becomes a finding: the code path itself, the dependency's source at the locked version (for Rust, `~/.cargo/registry/src/`), the dependency tree, the base branch's lockfile. A suspicion that fails its check is dropped silently. Keep track of what was checked by reading and what was run.
+
+Start the repo's test gate on the untouched head now, in the background: it is the **baseline** every later result is compared with, and the slow first build. A throwaway reproduction is fine here when it is cheap; revert it before anything else runs, so it never counts in the baseline.
 
 Done when each finding has a named piece of evidence behind it.
 
@@ -51,7 +55,7 @@ Done when no two changes edit the same code and every finding from step 2 lives 
 Work through the changes in order. For each one:
 
 1. **Apply** it in the review worktree, on top of the changes before it. Include everything it forces: call sites, tests, docs.
-2. **Test** it with the repo's own gates, as its `CLAUDE.md`, CI workflow or `justfile` define them: build, the tests of the crates touched, formatting, lints. Start the first build early; it is the slow part. Reproduce a claimed bug before fixing it when that is cheap. A change that cannot be made to pass is reworked, or its finding is dropped or restated as a question with the failure quoted.
+2. **Test** it with the repo's own gates, as its `CLAUDE.md`, CI workflow or `justfile` define them: build, the tests of the packages touched, formatting, lints. Reproduce a claimed bug before fixing it when that is cheap: a test that fails before the change and passes after is the best evidence a change can carry. A change that cannot be made to pass is reworked, or its finding is dropped or restated as a question with the failure quoted.
 3. **Commit** it locally in the review worktree: one commit per change. Local commits stay in the worktree; nothing is pushed here.
 4. **Deliver** it as the delivery file says.
 
@@ -62,5 +66,5 @@ Done when every change is committed, delivered, and the full gates passed on the
 ## 5. Wrap up
 
 1. The verdict: blockers or none.
-2. What ran: the gate commands and their results on the final worktree state, and what testing changed about the findings.
+2. What ran: the gate commands and their results on the final worktree state against the baseline, and what testing changed about the findings.
 3. Caveats: findings left as questions because their change could not be tested (for example, one that needs live credentials or a running service), and anything the author must confirm.
