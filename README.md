@@ -6,7 +6,7 @@ Agent skills for [Claude Code](https://claude.com/claude-code), packaged as a pl
 
 | Skill | What it does |
 | --- | --- |
-| [`pr-review-comments`](skills/pr-review-comments/SKILL.md) | Reviews a GitHub PR and outputs an ordered series of paste-ready review comments, each with its file/line anchor, links to the source lines and a change snippet that was applied and tested in a checkout of the PR. Requires the [`gh` CLI](https://cli.github.com). |
+| [`pr-review`](skills/pr-review/SKILL.md) | Reviews a GitHub PR: finds issues, applies and tests each fix in a checkout of the PR, and delivers the fixes as paste-ready review comments (default) or, on request and after your approval, as a stack of PRs on the reviewed one with a summary comment. Requires the [`gh` CLI](https://cli.github.com). |
 
 ## Install
 
@@ -22,7 +22,7 @@ In Claude Code:
 Skills fire on their own when a request matches (for example, "review this PR: <url>"), and can be invoked by name under the plugin's prefix:
 
 ```
-/sergerad-skills:pr-review-comments https://github.com/<owner>/<repo>/pull/<n>
+/sergerad-skills:pr-review https://github.com/<owner>/<repo>/pull/<n>
 ```
 
 Update later with `/plugin marketplace update sergerad`.
@@ -33,13 +33,13 @@ Clone the repo and link the skills you want into `~/.claude/skills/`:
 
 ```sh
 git clone https://github.com/sergerad/skills.git ~/Source/skills
-ln -s ~/Source/skills/skills/pr-review-comments ~/.claude/skills/pr-review-comments
+ln -s ~/Source/skills/skills/pr-review ~/.claude/skills/pr-review
 ```
 
 The skill fires on its own in the same way, and is invoked by name without a prefix:
 
 ```
-/pr-review-comments https://github.com/<owner>/<repo>/pull/<n>
+/pr-review https://github.com/<owner>/<repo>/pull/<n>
 ```
 
 To use a skill in one project only, link or copy it into that project's `.claude/skills/` instead.
