@@ -1,6 +1,6 @@
 # Delivering as review comments
 
-The default delivery of [`pr-review`](SKILL.md): each change becomes a paste-ready comment for the PR's "Files changed" view, shown in the conversation as soon as it is verified. Nothing is pushed or posted.
+One of the two deliveries of [`pr-review`](SKILL.md): each change becomes a paste-ready comment for the PR's "Files changed" view, shown in the conversation as soon as it is verified. Nothing is pushed or posted.
 
 ## When to show a comment
 

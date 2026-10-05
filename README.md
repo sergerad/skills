@@ -6,7 +6,7 @@ Agent skills for [Claude Code](https://claude.com/claude-code), packaged as a pl
 
 | Skill | What it does |
 | --- | --- |
-| [`pr-review`](skills/pr-review/SKILL.md) | Reviews a GitHub PR: finds issues, applies and tests each fix in a checkout of the PR, and delivers the fixes as paste-ready review comments (default) or, on request and after your approval, as a stack of PRs on the reviewed one with a summary comment. Requires the [`gh` CLI](https://cli.github.com); the stack delivery also needs the `gh stack` extension (`gh extension install github/gh-stack`). |
+| [`pr-review`](skills/pr-review/SKILL.md) | Reviews a GitHub PR: finds issues, applies and tests each fix in a checkout of the PR, and delivers the fixes as paste-ready review comments or, after your approval, as a GitHub stack of PRs on the reviewed one with a summary comment. It asks which you want when the request does not say. Requires the [`gh` CLI](https://cli.github.com); the stack delivery also needs the `gh stack` extension (`gh extension install github/gh-stack`). |
 
 ## Install
 

@@ -1,6 +1,6 @@
 # Delivering as a stack of PRs
 
-The opt-in delivery of [`pr-review`](SKILL.md), used only when the user asks for it: each change becomes a PR stacked on the reviewed PR, and one short comment on the reviewed PR indexes the stack. This pushes branches and posts on someone else's work, so the user signs off twice: on the **plan**, before any code is written, and on the **finished stack**, before anything is published.
+One of the two deliveries of [`pr-review`](SKILL.md): each change becomes a PR stacked on the reviewed PR, and one short comment on the reviewed PR indexes the stack. This pushes branches and posts on someone else's work, so the user signs off twice: on the **plan**, before any code is written, and on the **finished stack**, before anything is published.
 
 ## 1. Shape the stack
 

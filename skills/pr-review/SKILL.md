@@ -1,6 +1,6 @@
 ---
 name: pr-review
-description: Review a GitHub pull request by finding issues and applying and testing each fix in a checkout, then deliver the fixes as paste-ready review comments or, when asked, as a stack of PRs on the reviewed one. Use when the user asks to review a PR, or gives a GitHub pull request URL or number to review.
+description: Review a GitHub pull request by finding issues and applying and testing each fix in a checkout, then deliver the fixes as paste-ready review comments or as a stack of PRs on the reviewed one. Use when the user asks to review a PR, or gives a GitHub pull request URL or number to review.
 ---
 
 # PR review
@@ -11,10 +11,14 @@ The argument is a PR URL or number.
 
 ## Delivery
 
-The changes reach the author in one of two ways. Read the delivery file as soon as step 3 is done, before any code is written, and follow it from there:
+The changes reach the author in one of two ways:
 
-- **Review comments** (default): paste-ready comments shown in the conversation. Read [`DELIVER-COMMENTS.md`](DELIVER-COMMENTS.md).
-- **Stack of PRs**, only when the user asks for a stack or for PRs: one PR per change on top of the reviewed PR, plus one summary comment. The user signs off the planned PRs before step 4. Read [`DELIVER-STACK.md`](DELIVER-STACK.md).
+- **Review comments**: paste-ready comments shown in the conversation. Read [`DELIVER-COMMENTS.md`](DELIVER-COMMENTS.md).
+- **Stack of PRs**: one PR per change on top of the reviewed PR, linked as a GitHub stack, plus one summary comment. The user signs off the planned PRs before step 4. Read [`DELIVER-STACK.md`](DELIVER-STACK.md).
+
+The user's request decides which. "Comments", "review comments" or "what should I comment" means comments; "a stack", "PRs" or "open PRs for the fixes" means the stack. When the request names neither, as in a bare "review this PR", ask once, as soon as step 3 is done: list the arranged changes by title in a line each, then ask which delivery they want. Reading and finding (steps 1 to 3) never wait on the answer.
+
+Read the chosen delivery file before any code is written, and follow it from there.
 
 ## 1. Read the PR at its head commit
 
