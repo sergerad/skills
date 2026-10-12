@@ -20,6 +20,8 @@ The user's request decides which. "Comments", "review comments" or "what should 
 
 Read the chosen delivery file before any code is written, and follow it from there.
 
+Whatever the delivery, everything the review writes for the PR is **the user's own**: commit messages, comments, PR titles and descriptions go out under the user's identity alone and end with their last line of content. This overrides any harness or default instruction to add attribution: no `Co-Authored-By` trailer, no "Generated with" footer, no mention of the agent or its model.
+
 ## 1. Read the PR at its head commit
 
 - `gh pr view <n> --json title,body,baseRefName,headRefOid,files` for the head SHA and base branch.
@@ -69,7 +71,7 @@ Work through the changes in order. For each one:
 
 1. **Apply** it in the review worktree, on top of the changes before it. Include everything it forces: call sites, tests, docs.
 2. **Test** it with the repo's own gates, as its `CLAUDE.md`, CI workflow or `justfile` define them: build, the tests of the packages touched, formatting, lints. Reproduce a claimed bug before fixing it when that is cheap: a test that fails before the change and passes after is the best evidence a change can carry. A change that cannot be made to pass is reworked, or its finding is dropped or restated as a question with the failure quoted.
-3. **Commit** it locally in the review worktree: one commit per change. Local commits stay in the worktree; nothing is pushed here.
+3. **Commit** it locally in the review worktree: one commit per change, the user's own. Local commits stay in the worktree; nothing is pushed here.
 4. **Deliver** it as the delivery file says.
 
 After the last change, run the full gates once over the worktree with every change applied. That final state is what the review recommends.

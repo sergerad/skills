@@ -30,7 +30,7 @@ Once step 5 of `SKILL.md` has applied and tested the signed-off changes, each on
 git branch review/pr-<n>/<nn>-<slug> <commit>
 ```
 
-Commit messages, like the PR texts below, follow the repo's and the user's rules for format, signing and attribution (`CLAUDE.md`, the user's memory). Reword with `git commit --amend` or an autosquash rebase before branching if they do not.
+Commit messages, like the PR texts below, are the user's own (see `SKILL.md`) and follow the repo's and the user's rules for format and signing (`CLAUDE.md`, the user's memory). Reword with `git commit --amend` or an autosquash rebase before branching if they do not.
 
 ## 4. Draft the text
 
