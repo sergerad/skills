@@ -31,6 +31,7 @@ class Page(HTMLParser):
         self.sha = None
         self.header_nav = {}
         self.same_tab = []
+        self.types = []
         self.ids = set()
         self.links = []
         self.citations = []
@@ -55,6 +56,12 @@ class Page(HTMLParser):
             self.questions[-1]["options"].append({"key": attrs["data-option"], "text": ""})
         elif "explanation" in classes and self.questions:
             self.questions[-1]["explained"] = tag
+
+        if self._inside("types"):
+            if tag == "dt":
+                self.types.append({"line": self.getpos()[0], "named": False})
+            elif tag == "code" and self.types and any(open_tag == "dt" for open_tag, _, _ in self.stack):
+                self.types[-1]["named"] = True
 
         if tag in ("link", "script") and (attrs.get("href") or attrs.get("src")):
             self.links.append({"href": attrs.get("href") or attrs.get("src"), "line": self.getpos()[0]})
@@ -223,6 +230,7 @@ def check(out_dir, repo):
     for name, page in pages.items():
         found = check_frames(page) + check_quiz(page)
         found += [f'line {line}: a source link needs target="_blank"' for line in page.same_tab]
+        found += [f"line {t['line']}: a type's <dt> names the type in <code>" for t in page.types if not t["named"]]
         for link in page.links:
             found += [f"line {link['line']}: {p}" for p in check_link(link, name, pages, site_files)]
         if sha:

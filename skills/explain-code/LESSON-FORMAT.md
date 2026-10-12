@@ -75,6 +75,7 @@ A citation is a link to code at the pinned commit, and the only way a lesson ref
 - `href` is the link base followed by the path and the lines: the GitHub permalink above (`#L88` for a single line).
 - `target="_blank"` opens the source in a new tab, so the reader keeps their place in the lesson.
 - The visible text is the file name and the lines. Give the fuller path when two files in the lesson share a name.
+- A citation locates; the prose beside it names. Whenever a sentence, a heading or a `<dt>` cites an identifier, the identifier comes first in `<code>` and its citation follows: `<code>parse_intent</code> (<a class="src" …>verify.rs L449–L473</a>)`.
 - A citation into a dependency's source links to that dependency's repo at its locked version, takes `class="src ext"`, drops the `data-` attributes, and keeps `target="_blank"`.
 
 ## `index.html`
@@ -115,7 +116,7 @@ When the whole scope is one short flow, the lesson's sections follow the glossar
 In this order:
 
 1. **The flow**: one paragraph. What starts it, what it ends in, and the path between in a sentence. Then the frames as a one-line chain of identifiers (`a → b → c`), so the reader sees the whole trace before its parts.
-2. **Types**: the types this flow moves, as a `<dl class="types">`. Each `<dt>` is the type's name as a citation; each `<dd>` says what it represents, the fields the flow depends on, which frame builds it and which consume it.
+2. **Types**: the types this flow moves, as a `<dl class="types">`. Each `<dt>` names the type and then cites it, as a frame's heading does (`<dt><code>Config</code> <a class="src" …>config.rs L227–L245</a></dt>`); each `<dd>` says what it represents, the fields the flow depends on, which frame builds it and which consume it.
 3. **Trace**: the frames and boundaries in execution order, in the markup below. A diagram is added, as inline SVG, when three or more actors exchange messages and the order between them is the point.
 4. **Why it is built this way**: the design choices the trace showed, each tied to its frame (`<a href="#frame-4">frame 4</a>`), with the alternative it rules out and the reason, cited or marked as an inference.
 5. **Quiz**: in the markup below.
