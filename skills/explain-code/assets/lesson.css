@@ -54,6 +54,11 @@ table { border-collapse: collapse; width: 100%; font-size: 0.93rem; }
 th, td { text-align: left; vertical-align: top; padding: 0.45rem 0.8rem 0.45rem 0; border-bottom: 1px solid var(--rule); }
 th { font-weight: 500; color: var(--muted); }
 
+/* The map: a table whose first column is the directory tree, indented by depth. */
+table.map td.path { padding-left: calc(var(--depth, 0) * 1.1rem); white-space: nowrap; }
+table.map tr.dir td { color: var(--muted); }
+table.map tr.dir td.path code { color: var(--fg); font-weight: 600; background: none; padding: 0; }
+
 .page-header { margin-bottom: 2.5rem; }
 .crumbs, .pin { margin: 0; color: var(--muted); font-size: 0.88rem; }
 

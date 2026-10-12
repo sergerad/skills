@@ -82,7 +82,7 @@ A citation is a link to code at the pinned commit, and the only way a lesson ref
 In this order:
 
 1. **Summary**: what the scope does and how, in three paragraphs at most: the problem it solves, the shape of the solution, and the one idea a reader must hold to follow the rest.
-2. **Map**: the modules of the scope, most central first, as a table: path (a citation to the module's root file), what it is responsible for, and which lessons pass through it. Modules of the wider project appear only as the neighbours the scope talks to.
+2. **Map**: the scope as a table that follows its directory and module hierarchy down from the repo root, so the reader sees where every file sits. One row per directory and per module file, in tree order, in the markup below. Within a directory the root of the module tree (`lib.rs`, `mod.rs`, `__init__.py`, `index.ts`) comes first and its row says which modules it declares and which of them are public; the modules follow in the order it declares them. A directory of the wider project appears only as a neighbour the scope talks to, as a single row. Neighbours outside the repo (dependencies, services) follow in a second table.
 3. **Glossary**: a `<dl class="glossary">` of the domain and codebase terms the lessons use. One or two sentences each, saying what the thing is, with a citation where the term is a type.
 4. **Lessons**: an ordered list. Each entry links to the lesson and gives its flow as `entry point → effect` in a line.
 5. **Left out**: the modules and flows of the scope the lessons do not cover, with the reason, so the reader knows the edge of what they learned.
@@ -90,6 +90,25 @@ In this order:
 7. **Leads for a simplification review**: a `<ul class="leads">`, one item per lead: a citation and one sentence on what looks heavier than the flow needs. The section opens by saying the leads are unverified observations made while tracing.
 
 When the whole scope is one short flow, the lesson's sections follow the glossary in `index.html` and there is no lesson list.
+
+### Map markup
+
+```html
+<table class="map">
+  <thead><tr><th>Path</th><th>Responsible for</th><th>Lessons</th></tr></thead>
+  <tbody>
+    <tr class="dir"><td class="path" style="--depth: 0"><code>crates/</code></td><td></td><td></td></tr>
+    <tr class="dir"><td class="path" style="--depth: 1"><code>relayer/</code></td><td>The scope: the deposit relayer, a library and its binary.</td><td></td></tr>
+    <tr class="dir"><td class="path" style="--depth: 2"><code>src/</code></td><td></td><td></td></tr>
+    <tr><td class="path" style="--depth: 3"><a class="src" …>lib.rs</a></td><td>The crate root: declares the modules below; <code>submit</code> is public.</td><td></td></tr>
+    <tr><td class="path" style="--depth: 3"><a class="src" …>submit.rs</a></td><td>Builds and submits mint notes.</td><td>2, 3</td></tr>
+  </tbody>
+</table>
+```
+
+- `--depth` is the row's depth below the repo root; the stylesheet indents the first cell by it.
+- A directory row (`<tr class="dir">`) names the directory with a trailing `/`, and says what it holds when that is not plain from its rows.
+- A module row cites the module's root file. Here alone a citation shows only the file name, since the tree gives the rest of its path.
 
 ## A lesson page
 
