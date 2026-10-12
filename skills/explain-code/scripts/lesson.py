@@ -29,7 +29,7 @@ class Page(HTMLParser):
         super().__init__(convert_charrefs=True)
         self.stack = []
         self.sha = None
-        self.header_next = None
+        self.header_nav = {}
         self.same_tab = []
         self.ids = set()
         self.links = []
@@ -56,6 +56,9 @@ class Page(HTMLParser):
         elif "explanation" in classes and self.questions:
             self.questions[-1]["explained"] = tag
 
+        if tag in ("link", "script") and (attrs.get("href") or attrs.get("src")):
+            self.links.append({"href": attrs.get("href") or attrs.get("src"), "line": self.getpos()[0]})
+
         if tag == "a":
             href = attrs.get("href") or ""
             line = self.getpos()[0]
@@ -67,8 +70,8 @@ class Page(HTMLParser):
                     self.frames[-1]["symbols"] += 1
             else:
                 self.links.append({"href": href, "line": line})
-            if attrs.get("rel") == "next" and self._inside("page-header"):
-                self.header_next = href
+            if attrs.get("rel") in ("prev", "next") and self._inside("page-header"):
+                self.header_nav[attrs["rel"]] = href
             if self._inside("explanation") and self.questions:
                 self.questions[-1]["proof"] = True
 
@@ -131,14 +134,17 @@ def check_citation(citation, sha, repo, sources):
     return problems
 
 
-def check_link(link, page_name, pages, out_dir):
+def check_link(link, page_name, pages, site_files):
     href = link["href"]
     if not href or re.match(r"[a-z][a-z0-9+.-]*:", href):
         return []
     target, _, fragment = href.partition("#")
     target = target or page_name
+    if target.startswith("/"):
+        return [f"link to {target} must be relative, so the site works from any URL"]
     if target not in pages:
-        return [] if (out_dir / target).exists() else [f"link to missing file {target}"]
+        # Compared with the names on disk exactly: a static host is case-sensitive where macOS is not.
+        return [] if target in site_files else [f"link to missing file {target}"]
     if fragment and fragment not in pages[target].ids:
         return [f"link to missing anchor {target}#{fragment}"]
     return []
@@ -191,9 +197,17 @@ def check(out_dir, repo):
         page.feed(file.read_text(encoding="utf-8"))
         pages[file.name] = page
 
-    problems = [f"missing {asset}" for asset in ASSETS if not (out_dir / asset).exists()]
+    site_files = {
+        path.relative_to(out_dir).as_posix()
+        for path in out_dir.rglob("*")
+        if path.is_file() and not path.name.startswith(".")
+    }
+    problems = [f"missing {asset}" for asset in ASSETS if asset not in site_files]
     if "index.html" not in pages:
         problems.append("missing index.html")
+    for name in sorted(site_files - set(pages) - set(ASSETS)):
+        problems.append(f"{name} is not part of the site; keep working files out of the output directory")
+    problems += [f"{name}: file names are lowercase" for name in sorted(site_files) if name != name.lower()]
 
     shas = {page.sha for page in pages.values()}
     sha = next(iter(shas)) if len(shas) == 1 else None
@@ -210,7 +224,7 @@ def check(out_dir, repo):
         found = check_frames(page) + check_quiz(page)
         found += [f'line {line}: a source link needs target="_blank"' for line in page.same_tab]
         for link in page.links:
-            found += [f"line {link['line']}: {p}" for p in check_link(link, name, pages, out_dir)]
+            found += [f"line {link['line']}: {p}" for p in check_link(link, name, pages, site_files)]
         if sha:
             for citation in page.citations:
                 citations += 1
@@ -218,9 +232,12 @@ def check(out_dir, repo):
         problems += [f"{name}: {p}" for p in found]
 
     lessons = sorted(name for name, page in pages.items() if page.frames and name != "index.html")
-    for name, following in zip(lessons, lessons[1:]):
-        if pages[name].header_next != following:
+    reading_order = [name for name in ["index.html", *lessons] if name in pages]
+    for name, following in zip(reading_order, reading_order[1:]):
+        if pages[name].header_nav.get("next") != following:
             problems.append(f'{name}: the page header needs <a rel="next" href="{following}">')
+        if pages[following].header_nav.get("prev") != name:
+            problems.append(f'{following}: the page header needs <a rel="prev" href="{name}">')
 
     if not any(page.frames for page in pages.values()):
         problems.append("no page has a trace")

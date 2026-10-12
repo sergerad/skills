@@ -14,7 +14,9 @@ How [`explain-code`](SKILL.md) writes its output: the files, the two page types,
     quiz.js             # copied from this skill's assets/
 ```
 
-Copy `assets/` from this skill's directory as it is. A page needs nothing from the network.
+Copy `assets/` from this skill's directory as it is.
+
+The output directory is a complete **static site**, uploaded as it stands to a host such as Netlify. `index.html` sits at its root, every link between its files is relative, file names are lowercase (hosts are case-sensitive where macOS is not), a page needs nothing from the network, and the directory holds only the files above: working files stay in the scratchpad.
 
 Every page starts from this skeleton:
 
@@ -34,14 +36,14 @@ Every page starts from this skeleton:
     <p class="crumbs"><a href="index.html"><repo></a> · <scope></p>
     <h1><page title></h1>
     <p class="pin"><owner>/<repo> at <code><short sha></code>, <date>. <"Uncommitted changes in the working tree are left out." when there were any></p>
-    <lesson nav, on a lesson page>
+    <lesson nav>
   </header>
   <main> … </main>
 </body>
 </html>
 ```
 
-The **lesson nav** links a lesson to its neighbours in reading order. The first lesson has only the `next` link and the last only the `prev` link:
+The **lesson nav** links a page to its neighbours in reading order, which runs from the overview through the lessons. The overview has only the `next` link, to the first lesson; the first lesson's `prev` link is the overview (`← Overview`); the last lesson has only the `prev` link. A scope written as one page has no nav:
 
 ```html
 <nav class="lesson-nav">

@@ -88,6 +88,7 @@ Done when `check` exits 0 and the cold reader answers every question of every le
 Open `index.html` for the user (`open` on macOS, `xdg-open` on Linux), then tell them:
 
 - where the lessons are, the commit they describe, and the lessons in reading order;
+- that the directory is a static site they can upload as it stands, for Netlify with `netlify deploy --dir <output-dir> --prod`, and that uploading publishes the lessons and their code excerpts;
 - what the verification covered, and anything in the lessons that rests on inference;
 - how many leads were recorded, and that they are unverified starting points for a simplification review;
 - that they can ask about anything unclear, or have a narrower scope explained in another run.
