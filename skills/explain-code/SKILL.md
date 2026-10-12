@@ -18,8 +18,8 @@ The reader is a senior engineer who is new to this repo and its domain. A hint i
 Everything the lessons say is about one commit.
 
 - Resolve the repo and its commit: `HEAD` for a local path, the default branch's head for a URL (clone it into the scratchpad).
+- Fix the **link base**: `https://github.com/<owner>/<repo>/blob/<full sha>/`, taken from the repo's GitHub remote. Every citation is a GitHub permalink, so that remote must contain the commit (`git fetch`, then `git branch -r --contains <sha>`). When the repo has no GitHub remote, or the commit is not on it yet, stop here and tell the user which of the two it is.
 - Read from a tree that matches that commit: the repo itself when its tree is clean, otherwise a detached worktree in the scratchpad (`git worktree add --detach <scratch>/<name> <sha>`). A dirty tree is named in the lessons' header as left out.
-- Decide the **link base**: GitHub permalinks at the full SHA when the repo has a GitHub remote that contains the commit (`git branch -r --contains <sha>`), otherwise `file://` links to the user's own copy.
 - Create the output directory: `~/code-explanations/<owner>-<repo>/<scope-slug>-<short-sha>/`, or the path the user gave. Lessons are written only there; the explained repo stays untouched.
 
 Done when the full SHA, the tree to read from, the link base and the output directory are fixed.

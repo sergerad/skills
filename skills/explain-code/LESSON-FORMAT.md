@@ -34,10 +34,20 @@ Every page starts from this skeleton:
     <p class="crumbs"><a href="index.html"><repo></a> · <scope></p>
     <h1><page title></h1>
     <p class="pin"><owner>/<repo> at <code><short sha></code>, <date>. <"Uncommitted changes in the working tree are left out." when there were any></p>
+    <lesson nav, on a lesson page>
   </header>
   <main> … </main>
 </body>
 </html>
+```
+
+The **lesson nav** links a lesson to its neighbours in reading order. The first lesson has only the `next` link and the last only the `prev` link:
+
+```html
+<nav class="lesson-nav">
+  <a rel="prev" href="01-<flow-slug>.html">← <previous lesson's title></a>
+  <a rel="next" href="03-<flow-slug>.html"><next lesson's title> →</a>
+</nav>
 ```
 
 ## Writing
@@ -54,14 +64,16 @@ A citation is a link to code at the pinned commit, and the only way a lesson ref
 ```html
 <a class="src" data-path="crates/relayer/src/submit.rs" data-lines="88-131"
    data-symbol="Relayer::submit_mint"
-   href="https://github.com/<owner>/<repo>/blob/<full sha>/crates/relayer/src/submit.rs#L88-L131">submit.rs L88–L131</a>
+   href="https://github.com/<owner>/<repo>/blob/<full sha>/crates/relayer/src/submit.rs#L88-L131"
+   target="_blank" rel="noopener">submit.rs L88–L131</a>
 ```
 
 - `data-path` is relative to the repo root; `data-lines` is `N` or `N-M`, the lines of the item at the pinned commit.
 - `data-symbol` names what the range holds. Its last segment (`submit_mint`) must appear inside the range. Every frame and type citation carries one; a citation of a bare statement may leave it out.
-- `href` follows the link base: the GitHub permalink above (`#L88` for a single line), or `file://<absolute path in the user's copy>` when the commit is not on GitHub.
+- `href` is the link base followed by the path and the lines: the GitHub permalink above (`#L88` for a single line).
+- `target="_blank"` opens the source in a new tab, so the reader keeps their place in the lesson.
 - The visible text is the file name and the lines. Give the fuller path when two files in the lesson share a name.
-- A citation into a dependency's source links to that dependency's repo at its locked version, takes `class="src ext"`, and drops the `data-` attributes.
+- A citation into a dependency's source links to that dependency's repo at its locked version, takes `class="src ext"`, drops the `data-` attributes, and keeps `target="_blank"`.
 
 ## `index.html`
 
@@ -86,7 +98,7 @@ In this order:
 3. **Trace**: the frames and boundaries in execution order, in the markup below. A diagram is added, as inline SVG, when three or more actors exchange messages and the order between them is the point.
 4. **Why it is built this way**: the design choices the trace showed, each tied to its frame (`<a href="#frame-4">frame 4</a>`), with the alternative it rules out and the reason, cited or marked as an inference.
 5. **Quiz**: in the markup below.
-6. **Footer**: links to the previous and next lessons and the overview, and a line telling the reader to ask the agent about anything unclear.
+6. **Footer**: a `<footer class="page-footer">` holding the lesson nav again, so the reader can move on from the top of the page or the bottom, then a link to the overview and a line telling the reader to ask the agent about anything unclear.
 
 ### Trace markup
 

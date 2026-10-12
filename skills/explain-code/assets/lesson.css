@@ -163,7 +163,9 @@ footer.page-footer {
   color: var(--muted);
   font-size: 0.9rem;
 }
-footer.page-footer nav { display: flex; justify-content: space-between; gap: 1rem; }
+.lesson-nav { display: flex; justify-content: space-between; gap: 1rem; font-size: 0.9rem; }
+.lesson-nav a[rel="next"] { margin-left: auto; text-align: right; }
+.page-header .lesson-nav { margin-top: 1rem; }
 
 @media print {
   html { font-size: 11pt; }

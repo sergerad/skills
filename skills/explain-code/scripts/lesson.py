@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Checks for the lessons that the explain-code skill writes.
 
-    lesson.py check <output-dir> <repo>   verify citations, links and quizzes against the pinned commit
+    lesson.py check <output-dir> <repo>   verify citations, links, lesson nav and quizzes against the pinned commit
     lesson.py blind <lesson.html>         print a lesson with its quiz answers and explanations removed
     lesson.py key <lesson.html>           print the answer key, one "<question number>: <option>" per line
 
@@ -29,6 +29,8 @@ class Page(HTMLParser):
         super().__init__(convert_charrefs=True)
         self.stack = []
         self.sha = None
+        self.header_next = None
+        self.same_tab = []
         self.ids = set()
         self.links = []
         self.citations = []
@@ -57,12 +59,16 @@ class Page(HTMLParser):
         if tag == "a":
             href = attrs.get("href") or ""
             line = self.getpos()[0]
+            if "src" in classes and attrs.get("target") != "_blank":
+                self.same_tab.append(line)
             if "src" in classes and "ext" not in classes:
                 self.citations.append({"attrs": attrs, "line": line})
                 if attrs.get("data-symbol") and self._inside("frame"):
                     self.frames[-1]["symbols"] += 1
             else:
                 self.links.append({"href": href, "line": line})
+            if attrs.get("rel") == "next" and self._inside("page-header"):
+                self.header_next = href
             if self._inside("explanation") and self.questions:
                 self.questions[-1]["proof"] = True
 
@@ -117,15 +123,11 @@ def check_citation(citation, sha, repo, sources):
         problems.append(f'{path}: "{last_segment(symbol)}" (from {symbol}) is not in lines {lines}')
 
     href = href or ""
-    if href.startswith("https://github.com/"):
-        anchor = f"#L{first}" if first == last else f"#L{first}-L{last}"
-        if not href.endswith(f"/blob/{sha}/{path}{anchor}"):
-            problems.append(f"{path}: href should end with /blob/{sha}/{path}{anchor}")
-    elif href.startswith("file://"):
-        if not href.split("#")[0].endswith("/" + path):
-            problems.append(f"{path}: file:// href does not point at this path")
-    else:
-        problems.append(f"{path}: href is neither a GitHub permalink nor a file:// link")
+    anchor = f"#L{first}" if first == last else f"#L{first}-L{last}"
+    if not href.startswith("https://github.com/"):
+        problems.append(f"{path}: href is not a GitHub permalink")
+    elif not href.endswith(f"/blob/{sha}/{path}{anchor}"):
+        problems.append(f"{path}: href should end with /blob/{sha}/{path}{anchor}")
     return problems
 
 
@@ -206,6 +208,7 @@ def check(out_dir, repo):
     citations = 0
     for name, page in pages.items():
         found = check_frames(page) + check_quiz(page)
+        found += [f'line {line}: a source link needs target="_blank"' for line in page.same_tab]
         for link in page.links:
             found += [f"line {link['line']}: {p}" for p in check_link(link, name, pages, out_dir)]
         if sha:
@@ -213,6 +216,11 @@ def check(out_dir, repo):
                 citations += 1
                 found += [f"line {citation['line']}: {p}" for p in check_citation(citation, sha, repo, sources)]
         problems += [f"{name}: {p}" for p in found]
+
+    lessons = sorted(name for name, page in pages.items() if page.frames and name != "index.html")
+    for name, following in zip(lessons, lessons[1:]):
+        if pages[name].header_next != following:
+            problems.append(f'{name}: the page header needs <a rel="next" href="{following}">')
 
     if not any(page.frames for page in pages.values()):
         problems.append("no page has a trace")
