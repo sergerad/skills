@@ -31,7 +31,8 @@ html { font-size: 17px; }
 body {
   margin: 0 auto;
   padding: 3rem 1.5rem 6rem;
-  max-width: 46rem;
+  /* Three quarters of a wide window; a narrow one is filled. */
+  max-width: max(46rem, 75vw);
   background: var(--bg);
   color: var(--fg);
   font-family: var(--serif);
