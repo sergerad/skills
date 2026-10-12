@@ -7,7 +7,7 @@
   "plugins": [
     {
       "name": "sergerad-skills",
-      "description": "Personal agent skills: PR review and more.",
+      "description": "Personal agent skills: PR review, code explanation and more.",
       "source": "./"
     }
   ]
