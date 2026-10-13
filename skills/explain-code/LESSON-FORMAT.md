@@ -136,7 +136,7 @@ In this order:
       <li><a href="#frame-2"><code>next_page</code></a></li>
       <li><a href="#frame-3"><code>submit_mint</code></a> <span class="note">once per deposit</span>
         <ul>
-          <li><code>prove</code> <span class="note">traced in <a href="03-proving.html">Proving</a></span></li>
+          <li><code>prove</code> <span class="note">traced in <a href="03-proving.html#frame-1">Proving</a></span></li>
         </ul>
       </li>
     </ul>
@@ -146,7 +146,7 @@ In this order:
 ```
 
 - Every frame of the trace is a node, linked to its anchor. Read top to bottom, the nodes give the frames in the order they run.
-- A call the trace does not enter is a node without a link. When another lesson traces it, its note links that lesson: the call tree is where the lessons point at each other.
+- A call the trace does not enter is a node without a link. When another lesson traces it, its note links the frame that traces it there (`03-proving.html#frame-1`), so the reader lands on the function and not at the top of the page. The call tree is where the lessons point at each other.
 - Code that runs in another task, thread or process starts a new root.
 - A note is a few words on how the call runs: a loop, a branch, once per item.
 

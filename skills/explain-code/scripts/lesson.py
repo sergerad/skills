@@ -215,6 +215,10 @@ def check_frames(page):
         elif frame["depth"] != in_tree:
             problems.append(f"frame {number} has --depth {frame['depth']}; the call tree puts it at {in_tree}")
     problems += [f'line {line}: a code block needs class="language-…"' for line in page.plain_code]
+    for href in page.tree:
+        elsewhere = not href.startswith("#") and not re.match(r"[a-z][a-z0-9+.-]*:", href)
+        if elsewhere and not re.search(r"#frame-\d+$", href):
+            problems.append(f"the call tree links {href}; link the frame that traces the call there (#frame-N)")
     return problems
 
 
