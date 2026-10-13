@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Checks for the lessons that the explain-code skill writes.
 
-    lesson.py check <output-dir> <repo>   verify citations, links, lesson nav and quizzes against the pinned commit
+    lesson.py check <output-dir> <repo>   verify citations, links, navigation and quizzes against the pinned commit
     lesson.py blind <lesson.html>         print a lesson with its quiz answers and explanations removed
     lesson.py key <lesson.html>           print the answer key, one "<question number>: <option>" per line
 
@@ -23,13 +23,15 @@ MAX_OPTION_WORD_SPREAD = 2
 
 
 class Page(HTMLParser):
-    """Collects what `check` needs from one page: ids, links, citations, frames and questions."""
+    """Collects what `check` needs from one page: ids, sections, links, citations, frames and questions."""
 
     def __init__(self):
         super().__init__(convert_charrefs=True)
         self.stack = []
         self.sha = None
         self.header_nav = {}
+        self.sections = []
+        self.toc = []
         self.same_tab = []
         self.types = []
         self.plain_code = []
@@ -48,6 +50,8 @@ class Page(HTMLParser):
             self.sha = attrs.get("content")
         if "id" in attrs:
             self.ids.add(attrs["id"])
+        if tag == "h2":
+            self.sections.append(attrs.get("id"))
 
         if "frame" in classes:
             depth = re.search(r"--depth:\s*(\d+)", attrs.get("style") or "")
@@ -95,6 +99,8 @@ class Page(HTMLParser):
                 self.tree.setdefault(href, self.tree_lists - 1)
             if attrs.get("rel") in ("prev", "next") and self._inside("page-header"):
                 self.header_nav[attrs["rel"]] = href
+            if self._inside("toc"):
+                self.toc.append(href)
             if self._inside("explanation") and self.questions:
                 self.questions[-1]["proof"] = True
 
@@ -173,6 +179,17 @@ def check_link(link, page_name, pages, site_files):
     if fragment and fragment not in pages[target].ids:
         return [f"link to missing anchor {target}#{fragment}"]
     return []
+
+
+def check_toc(page):
+    problems = [f"<h2> {number} has no id" for number, section in enumerate(page.sections, 1) if not section]
+    expected = [f"#{section}" for section in page.sections if section]
+    if page.toc != expected:
+        problems.append(
+            f'the page toc (<nav class="toc">) links {page.toc or "nothing"}; '
+            f"it needs one link per <h2>, in page order: {expected}"
+        )
+    return problems
 
 
 def check_quiz(page):
@@ -258,7 +275,7 @@ def check(out_dir, repo):
     sources = {}
     citations = 0
     for name, page in pages.items():
-        found = check_frames(page) + check_quiz(page)
+        found = check_toc(page) + check_frames(page) + check_quiz(page)
         found += [f'line {line}: a source link needs target="_blank"' for line in page.same_tab]
         found += [f"line {t['line']}: a type's <dt> names the type in <code>" for t in page.types if not t["named"]]
         for link in page.links:

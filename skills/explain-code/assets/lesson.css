@@ -205,10 +205,31 @@ footer.page-footer {
 .lesson-nav a[rel="next"] { margin-left: auto; text-align: right; }
 .page-header .lesson-nav { margin-top: 1rem; }
 
+/* The page toc: a row under the header, which a wide window floats in its left margin. */
+.toc { display: flex; flex-wrap: wrap; gap: 0.2rem 1rem; margin-top: 1rem; font-size: 0.88rem; }
+.toc a { color: var(--muted); text-decoration: none; }
+.toc a:hover, .toc a:focus-visible { color: var(--accent); }
+
+@media (min-width: 72rem) {
+  .toc {
+    position: fixed;
+    top: 3rem;
+    /* The body is 75vw wide and centred, so the margin beside it is 12.5vw. */
+    left: calc(12.5vw - 7.5rem);
+    width: 6.5rem;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin: 0;
+    padding-left: 0.7rem;
+    border-left: 1px solid var(--rule);
+  }
+}
+
 @media print {
   html { font-size: 11pt; }
   body { max-width: none; padding: 0; }
   a { color: inherit; }
+  .toc { display: none; }
   .frame, .question, pre { break-inside: avoid; }
   .quiz.live .question:not(.answered) .explanation { display: none; }
 }

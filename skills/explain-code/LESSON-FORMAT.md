@@ -39,13 +39,14 @@ Every page starts from this skeleton:
     <h1><page title></h1>
     <p class="pin"><owner>/<repo> at <code><short sha></code>, <date>. <"Uncommitted changes in the working tree are left out." when there were any></p>
     <lesson nav>
+    <page toc>
   </header>
   <main> … </main>
 </body>
 </html>
 ```
 
-The **lesson nav** links a page to its neighbours in reading order, which runs from the overview through the lessons. The overview has only the `next` link, to the first lesson; the first lesson's `prev` link is the overview (`← Overview`); the last lesson has only the `prev` link. A scope written as one page has no nav:
+The **lesson nav** links a page to its neighbours in reading order, which runs from the overview through the lessons. The overview has only the `next` link, to the first lesson; the first lesson's `prev` link is the overview (`← Overview`); the last lesson has only the `prev` link. A scope written as one page has no lesson nav:
 
 ```html
 <nav class="lesson-nav">
@@ -53,6 +54,20 @@ The **lesson nav** links a page to its neighbours in reading order, which runs f
   <a rel="next" href="03-<flow-slug>.html"><next lesson's title> →</a>
 </nav>
 ```
+
+The **page toc** links the sections of the page it is on, so the reader can jump between them from anywhere on it. The stylesheet floats it in the left margin of a wide window and sets it as a row under the header in a narrow one. Every `<h2>` carries an `id`, and the toc holds one link per `<h2>`, in page order, labelled in a word or two:
+
+```html
+<nav class="toc" aria-label="On this page">
+  <a href="#flow">Flow</a>
+  <a href="#types">Types</a>
+  <a href="#trace">Trace</a>
+  <a href="#why">Why</a>
+  <a href="#quiz">Quiz</a>
+</nav>
+```
+
+A lesson's sections have the ids above. The overview's are `summary`, `map`, `glossary`, `lessons`, `left-out`, `sources` and `leads`.
 
 ## Writing
 
@@ -188,7 +203,7 @@ A boundary names the two contexts, the shape that crosses, the mechanism, and fo
 
 ```html
 <section class="quiz">
-  <h2>Quiz</h2>
+  <h2 id="quiz">Quiz</h2>
   <p class="score" aria-live="polite"></p>
   <article class="question" data-answer="c">
     <p class="prompt">A deposit attestation arrives whose nonce is already in the faucet's map. Where does the mint stop?</p>
