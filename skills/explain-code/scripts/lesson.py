@@ -16,7 +16,7 @@ from pathlib import Path
 
 VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "wbr"}
 SHA_META = "explain-code:sha"
-ASSETS = ("assets/lesson.css", "assets/quiz.js")
+ASSETS = ("assets/lesson.css", "assets/quiz.js", "assets/highlight.js")
 QUESTIONS_PER_LESSON = range(5, 9)
 OPTIONS_PER_QUESTION = 4
 MAX_OPTION_WORD_SPREAD = 2
@@ -32,6 +32,9 @@ class Page(HTMLParser):
         self.header_nav = {}
         self.same_tab = []
         self.types = []
+        self.plain_code = []
+        self.tree = {}
+        self.tree_lists = 0
         self.ids = set()
         self.links = []
         self.citations = []
@@ -47,7 +50,10 @@ class Page(HTMLParser):
             self.ids.add(attrs["id"])
 
         if "frame" in classes:
-            self.frames.append({"id": attrs.get("id"), "symbols": 0})
+            depth = re.search(r"--depth:\s*(\d+)", attrs.get("style") or "")
+            self.frames.append(
+                {"id": attrs.get("id"), "symbols": 0, "depth": int(depth[1]) if depth else None, "code": 0}
+            )
         elif "question" in classes:
             self.questions.append(
                 {"answer": attrs.get("data-answer"), "options": [], "explained": False, "proof": False}
@@ -63,6 +69,14 @@ class Page(HTMLParser):
             elif tag == "code" and self.types and any(open_tag == "dt" for open_tag, _, _ in self.stack):
                 self.types[-1]["named"] = True
 
+        if tag == "ul" and ("calltree" in classes or self.tree_lists):
+            self.tree_lists += 1
+        if tag == "code" and self.stack and self.stack[-1][0] == "pre":
+            if not any(name.startswith("language-") for name in classes):
+                self.plain_code.append(self.getpos()[0])
+            if self._inside("frame"):
+                self.frames[-1]["code"] += 1
+
         if tag in ("link", "script") and (attrs.get("href") or attrs.get("src")):
             self.links.append({"href": attrs.get("href") or attrs.get("src"), "line": self.getpos()[0]})
 
@@ -77,6 +91,8 @@ class Page(HTMLParser):
                     self.frames[-1]["symbols"] += 1
             else:
                 self.links.append({"href": href, "line": line})
+            if self.tree_lists:
+                self.tree.setdefault(href, self.tree_lists - 1)
             if attrs.get("rel") in ("prev", "next") and self._inside("page-header"):
                 self.header_nav[attrs["rel"]] = href
             if self._inside("explanation") and self.questions:
@@ -86,6 +102,8 @@ class Page(HTMLParser):
             self.stack.append((tag, classes, "data-option" in attrs))
 
     def handle_endtag(self, tag):
+        if tag == "ul" and self.tree_lists:
+            self.tree_lists -= 1
         for i in range(len(self.stack) - 1, -1, -1):
             if self.stack[i][0] == tag:
                 del self.stack[i:]
@@ -189,6 +207,14 @@ def check_frames(page):
             problems.append(f'frame {number} has id "{frame["id"]}", expected "frame-{number}"')
         if not frame["symbols"]:
             problems.append(f"frame {number} has no citation with a data-symbol")
+        if not frame["code"]:
+            problems.append(f"frame {number} has no code block for its signature")
+        in_tree = page.tree.get(f"#frame-{number}")
+        if in_tree is None:
+            problems.append(f"frame {number} is not linked from the call tree")
+        elif frame["depth"] != in_tree:
+            problems.append(f"frame {number} has --depth {frame['depth']}; the call tree puts it at {in_tree}")
+    problems += [f'line {line}: a code block needs class="language-…"' for line in page.plain_code]
     return problems
 
 

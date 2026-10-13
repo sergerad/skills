@@ -12,6 +12,7 @@ How [`explain-code`](SKILL.md) writes its output: the files, the two page types,
   assets/
     lesson.css          # copied from this skill's assets/
     quiz.js             # copied from this skill's assets/
+    highlight.js        # copied from this skill's assets/
 ```
 
 Copy `assets/` from this skill's directory as it is.
@@ -30,6 +31,7 @@ Every page starts from this skeleton:
   <title><page title> · <repo></title>
   <link rel="stylesheet" href="assets/lesson.css">
   <script defer src="assets/quiz.js"></script>
+  <script defer src="assets/highlight.js"></script>
 </head>
 <body>
   <header class="page-header">
@@ -58,6 +60,9 @@ The **lesson nav** links a page to its neighbours in reading order, which runs f
 - Use the glossary's term for a thing every time, and the code's own identifiers in `<code>`.
 - Every claim about behaviour rests on a citation. Every claim about *why* is either cited to its source or wrapped in `<span class="inferred">…</span>`, which the stylesheet labels as an inference.
 - Design and implementation stay together: a design point is made at the frame that implements it.
+- Show code where code is the shorter description: a function's inputs and outputs are its signature, a type's fields are its definition. Prose says what the code cannot: why, when, and what follows.
+- Name things, not positions. Another frame is referred to by its function's name, linked to its anchor (`<a href="#frame-4"><code>parse_intent</code></a>`); frame numbers and lesson numbers stay out of sentences.
+- One idea to a sentence, one step to a list item, one case to a table row.
 
 ## Citations
 
@@ -115,38 +120,69 @@ When the whole scope is one short flow, the lesson's sections follow the glossar
 
 In this order:
 
-1. **The flow**: one paragraph. What starts it, what it ends in, and the path between in a sentence. Then the frames as a one-line chain of identifiers (`a → b → c`), so the reader sees the whole trace before its parts.
-2. **Types**: the types this flow moves, as a `<dl class="types">`. Each `<dt>` names the type and then cites it, as a frame's heading does (`<dt><code>Config</code> <a class="src" …>config.rs L227–L245</a></dt>`); each `<dd>` says what it represents, the fields the flow depends on, which frame builds it and which consume it.
+1. **The flow**: one paragraph. What starts it, what it ends in, and the path between in a sentence. Then the **call tree**, in the markup below: the trace's frames as nested calls, so the reader sees what runs inside what before reading any of it.
+2. **Types**: the types this flow moves, as a `<dl class="types">`. Each `<dt>` names the type and then cites it, as a frame's heading does (`<dt><code>Config</code> <a class="src" …>config.rs L227–L245</a></dt>`); each `<dd>` shows the type's definition as a code block (the part the flow depends on, when the whole is long), then says in a sentence or two what it represents and which functions build and read it.
 3. **Trace**: the frames and boundaries in execution order, in the markup below. A diagram is added, as inline SVG, when three or more actors exchange messages and the order between them is the point.
-4. **Why it is built this way**: the design choices the trace showed, each tied to its frame (`<a href="#frame-4">frame 4</a>`), with the alternative it rules out and the reason, cited or marked as an inference.
+4. **Why it is built this way**: the design choices the trace showed, each tied to its frame by the function's name (`<a href="#frame-4"><code>parse_intent</code></a>`), with the alternative it rules out and the reason, cited or marked as an inference.
 5. **Quiz**: in the markup below.
 6. **Footer**: a `<footer class="page-footer">` holding the lesson nav again, so the reader can move on from the top of the page or the bottom, then a link to the overview and a line telling the reader to ask the agent about anything unclear.
+
+### Call tree markup
+
+```html
+<ul class="calltree">
+  <li><a href="#frame-1"><code>Relayer::run</code></a> <span class="note">loops until shutdown</span>
+    <ul>
+      <li><a href="#frame-2"><code>next_page</code></a></li>
+      <li><a href="#frame-3"><code>submit_mint</code></a> <span class="note">once per deposit</span>
+        <ul>
+          <li><code>prove</code> <span class="note">traced in <a href="03-proving.html">Proving</a></span></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#frame-4"><code>request_worker</code></a> <span class="note">its own task</span></li>
+</ul>
+```
+
+- Every frame of the trace is a node, linked to its anchor. Read top to bottom, the nodes give the frames in the order they run.
+- A call the trace does not enter is a node without a link. When another lesson traces it, its note links that lesson: the call tree is where the lessons point at each other.
+- Code that runs in another task, thread or process starts a new root.
+- A note is a few words on how the call runs: a loop, a branch, once per item.
 
 ### Trace markup
 
 ```html
 <ol class="trace">
-  <li class="frame" id="frame-1">
+  <li class="frame" id="frame-3" style="--depth: 1">
     <h3><code>Relayer::submit_mint</code> <a class="src" …>submit.rs L88–L131</a></h3>
-    <dl>
-      <dt>Receives</dt><dd>…the arguments and state it is handed, by type…</dd>
-      <dt>Does</dt><dd>…what it decides, checks or transforms, and what makes it fail…</dd>
-      <dt>Hands on</dt><dd>…what it returns, sends or writes, and to which frame…</dd>
-      <dt>Runs in</dt><dd>…the task, thread, process or transaction, when that differs from the frame before…</dd>
-    </dl>
-    <pre><code>…the few lines that are the point of the frame…</code></pre>
+    <p class="stack"><a href="#frame-1"><code>Relayer::run</code></a> › <code>submit_mint</code></p>
+    <p class="gist">Turns one attested deposit into a mint note and submits it.</p>
+    <pre><code class="language-rust">async fn submit_mint(&amp;mut self, deposit: &amp;Deposit) -> Result&lt;NoteId, SubmitError&gt;</code></pre>
+    <ul class="steps">
+      <li>…one step, check or branch per item, with what makes it fail…</li>
+    </ul>
+    <pre><code class="language-rust">…the few lines that are the point of the frame…</code></pre>
   </li>
   <li class="boundary">
     <strong>Task → RPC</strong> The signed transaction crosses as <code>ProvenTransaction</code> bytes over gRPC; the task awaits the reply, and a timeout leaves the deposit marked pending.
   </li>
-  <li class="frame" id="frame-2"> … </li>
+  <li class="frame" id="frame-4" style="--depth: 0"> … </li>
 </ol>
 ```
 
-- Frames are numbered by their `id`, `frame-1` upward, in the order they run.
-- An excerpt is included when the code itself teaches something the prose cannot: a non-obvious check, an ordering, a lock. It is copied from the pinned commit and kept under fifteen lines.
-- A boundary names the two contexts, the shape that crosses, the mechanism, and for asynchronous work what waits on what and what is left behind on failure.
-- Where the flow forks (an error path, a retry, a branch by variant), the frame says which branch the trace follows and gives the other a sentence and a citation.
+A frame is built to be read in seconds, top to bottom:
+
+- **Heading**: the function's name, then its citation. Frames are numbered by their `id`, `frame-1` upward, in the order they run. A function is one frame however long it is: its parts are steps or table rows, and the functions it calls are the frames beneath it.
+- **Stack**: the callers, outermost first, each linked to its frame, ending in this function. `--depth` is the frame's depth in the call tree, and the stylesheet indents the frame by it. A root frame has depth 0 and no stack line.
+- **Gist**: one sentence on what the frame is for. A reader who reads only the gists has the flow.
+- **Signature**: the first code block, copied from the pinned commit. It is how the frame shows what it receives and returns, so the prose does not repeat it.
+- **Steps**: up to five short items on what the frame decides, checks or transforms, and what makes it fail. Where it chooses between cases, the cases are a table (case, outcome) in place of a paragraph. Where the flow forks, the item says which branch the trace follows and cites the other.
+- **Excerpts**: one or two further code blocks when the code itself teaches something the steps cannot: a non-obvious check, an ordering, a lock. Each is copied from the pinned commit and kept under fifteen lines.
+
+Every code block names its language (`class="language-rust"`; also `go`, `typescript`, `python`, `solidity`, `sql`, `shell`, `toml`, `json`), which `highlight.js` colours.
+
+A boundary names the two contexts, the shape that crosses, the mechanism, and for asynchronous work what waits on what and what is left behind on failure. It is also where the lesson says what task, thread, process or transaction the following frames run in.
 
 ### Quiz markup
 

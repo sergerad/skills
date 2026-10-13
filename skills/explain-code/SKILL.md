@@ -57,7 +57,7 @@ Done when every flow has an entry point and an effect located in the code, and e
 
 For each flow, walk from the entry point to the effect, reading the body of every frame in full at the pinned commit. Record as you go:
 
-- **Frames**: each function, method or procedure where the flow decides, transforms or hands on. A wrapper that only forwards folds into the frame it wraps, and becomes a lead.
+- **Frames**: each function, method or procedure where the flow decides, transforms or hands on. A wrapper that only forwards folds into the frame it wraps, and becomes a lead. Record each frame's caller and its signature: the lesson draws the trace as a call tree and shows every signature.
 - **Types**: the structs, enums, traits, messages, tables and storage slots the flow builds, carries or writes, with the frame that builds each and the frames that consume it.
 - **Boundaries**: every change of context: process, package, language, network, storage, thread or task, sync to async, off-chain to on-chain. For each, the exact shape of the data that crosses and the mechanism that carries it (call, channel, queue, RPC, spawn, note).
 - **Asynchronous work**: what is spawned and what is awaited, what runs concurrently, what orders or retries it, and what state is left behind when it fails halfway.

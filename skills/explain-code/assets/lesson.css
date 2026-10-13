@@ -7,6 +7,12 @@
   --accent: #7a2e0e;
   --good: #1f6f43;
   --bad: #a3271d;
+  --tok-kw: #9b2c5a;
+  --tok-str: #2f6f3e;
+  --tok-com: #8a8a78;
+  --tok-num: #a35a00;
+  --tok-type: #1f5f8b;
+  --tok-fn: #6b4fa0;
   --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
   --mono: "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
 }
@@ -21,6 +27,12 @@
     --accent: #e0a070;
     --good: #6fcf97;
     --bad: #f08a80;
+    --tok-kw: #e58fb3;
+    --tok-str: #9fd08a;
+    --tok-com: #8a8a78;
+    --tok-num: #e6b566;
+    --tok-type: #7fb8e0;
+    --tok-fn: #c3a6f0;
   }
 }
 
@@ -50,6 +62,14 @@ code, pre { font-family: var(--mono); font-size: 0.82em; }
 code { background: var(--panel); padding: 0.08em 0.3em; border-radius: 3px; }
 pre { background: var(--panel); padding: 0.8rem 1rem; overflow-x: auto; line-height: 1.45; border-radius: 4px; }
 pre code { background: none; padding: 0; font-size: 1em; }
+
+/* Code colours, applied by highlight.js. */
+.tok-kw { color: var(--tok-kw); }
+.tok-str { color: var(--tok-str); }
+.tok-com { color: var(--tok-com); font-style: italic; }
+.tok-num, .tok-const { color: var(--tok-num); }
+.tok-type { color: var(--tok-type); }
+.tok-fn { color: var(--tok-fn); }
 
 table { border-collapse: collapse; width: 100%; font-size: 0.93rem; }
 th, td { text-align: left; vertical-align: top; padding: 0.45rem 0.8rem 0.45rem 0; border-bottom: 1px solid var(--rule); }
@@ -82,7 +102,13 @@ a.src.ext::after { content: " ↗"; }
   color: var(--muted);
 }
 
-.chain { font-family: var(--mono); font-size: 0.8rem; color: var(--muted); }
+/* The call tree: the trace's frames as nested calls. */
+ul.calltree, ul.calltree ul { list-style: none; margin: 0; padding: 0; }
+ul.calltree { margin: 1.2rem 0 0; font-family: var(--mono); font-size: 0.8rem; }
+ul.calltree ul { margin-left: 0.5rem; padding-left: 1rem; border-left: 1px solid var(--rule); }
+ul.calltree li { padding: 0.13rem 0; }
+ul.calltree code { background: none; padding: 0; font-size: 1em; }
+ul.calltree .note { margin-left: 0.7em; font-family: var(--serif); font-size: 1.08em; color: var(--muted); }
 
 dl.glossary dt, dl.types dt { font-weight: 600; margin-top: 0.9rem; }
 dl.glossary dd, dl.types dd { margin: 0.15rem 0 0; }
@@ -96,7 +122,8 @@ ol.trace { list-style: none; margin: 1.5rem 0; padding: 0; counter-reset: frame;
   margin: 0;
   padding: 0.2rem 0 1.4rem 2.6rem;
   border-left: 2px solid var(--rule);
-  margin-left: 0.9rem;
+  /* A frame is indented by its depth in the call tree. */
+  margin-left: calc(0.9rem + var(--depth, 0) * 1.3rem);
 }
 .frame::before {
   content: counter(frame);
@@ -116,9 +143,14 @@ ol.trace { list-style: none; margin: 1.5rem 0; padding: 0; counter-reset: frame;
 }
 .frame:target { background: var(--panel); }
 .frame h3 code { font-size: 0.95em; }
-.frame dl { display: grid; grid-template-columns: 6rem 1fr; gap: 0.3rem 0.8rem; margin: 0.4rem 0; font-size: 0.95rem; }
-.frame dt { color: var(--muted); font-size: 0.8rem; letter-spacing: 0.03em; text-transform: uppercase; padding-top: 0.15rem; }
-.frame dd { margin: 0; }
+.frame .stack { margin: 0 0 0.5rem; font-family: var(--mono); font-size: 0.74rem; color: var(--muted); }
+.frame .stack code { background: none; padding: 0; font-size: 1em; }
+.frame .gist { margin: 0 0 0.6rem; }
+.frame pre { margin: 0.6rem 0; }
+.frame .steps { margin: 0.5rem 0; padding-left: 1.2rem; font-size: 0.95rem; }
+.frame .steps li { margin: 0.2rem 0; }
+.frame table { margin: 0.5rem 0; }
+dl.types dd pre { margin: 0.4rem 0; }
 
 .boundary {
   margin: 0 0 1.4rem;
